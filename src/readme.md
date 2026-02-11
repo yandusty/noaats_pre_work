@@ -18,7 +18,7 @@
   └─ 선택별 가능성 가치 환산 (hours * 원/시간)  
         ↓  
 [표/요약 출력]           ← src/ui/results_page.py  
-        ↓
+        ↓  
 [의사결정 지원 질문 + 격려 문구] ← src/ui/support_page.py, src/quotes.py  
-        ↓
+        ↓  
 [JSON 내보내기(틀)]      ← src/ui/export_page.py  
