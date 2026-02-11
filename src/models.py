@@ -33,5 +33,9 @@ class AppState:
     basis_hour_value: float = 12000.0
     basis_note: str = "시간가치는 사용자 입력 기준(공식 통계값 아님)."
 
-    basics: TimeBasics = TimeBasics()
-    choices: Optional[List[ChoiceBlock]] = None
+    # ✅ 핵심 수정: mutable default는 default_factory로
+    basics: TimeBasics = field(default_factory=TimeBasics)
+
+    # choices는 리스트(가변)이므로 이것도 default_factory 추천
+    choices: List[ChoiceBlock] = field(default_factory=list)
+
