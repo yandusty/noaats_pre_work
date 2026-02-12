@@ -1,4 +1,4 @@
-#결과 UI
+#선택지에 따른 가치환산 결과창
 import streamlit as st
 
 from ..models import AppState
@@ -6,8 +6,8 @@ from ..calc import calc_opportunity_cost_table, krw
 
 
 def render_results_page(s: AppState, discretionary: float, fixed: dict) -> None:
-    st.subheader("3) 기회비용(가능성 가치) 결과")
-    st.caption("‘손해’가 아니라, 다른 선택으로 전환될 수 있었던 가능성의 크기를 보여준다.")
+    st.subheader("선택한 활동의 가치")
+    st.caption("선택한 활동에 대해 너가 생각한 가치를 보여준다.")
 
     fixed_sum = sum(fixed.values())
     st.write(f"- 필수 시간 합계: **{fixed_sum:.1f}시간**")

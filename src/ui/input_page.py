@@ -1,8 +1,6 @@
-#입력 UI
 import streamlit as st
 
 from ..models import AppState, ChoiceBlock
-from ..calc import sum_choice_hours
 
 
 def render_input_page(s: AppState, discretionary: float) -> None:
@@ -19,32 +17,41 @@ def render_input_page(s: AppState, discretionary: float) -> None:
     s.basics.commute_h = col3.number_input("이동(시간)", 0.0, 24.0, float(s.basics.commute_h), 0.5)
 
     st.divider()
-    st.subheader("2) 선택 가능한 시간 배분(선택)")
-    st.caption("‘이 선택을 하면, 다른 선택을 못 한다’는 사실을 숫자로 보여준다.")
+    st.subheader("2) 선택 가능한 시간 배분(6개 범주 고정)")
+    st.caption("선택지는 온보딩에서 정한 6개 범주로 고정되어 있어. (범주 밖 활동 추가는 v1에서)")
 
-    if s.choices is None:
-        s.choices = []
+    categories = list(s.weights.keys())
 
-    # 선택지 편집
-    for i, c in enumerate(s.choices):
+    # 기존 입력값 유지용 매핑
+    existing = {c.label: float(c.hours) for c in (s.choices or [])}
+
+    new_choices = []
+    used = 0.0
+
+    for i, cat in enumerate(categories):
+        default_h = max(0.0, float(existing.get(cat, 0.0)))
+
         with st.container(border=True):
-            cols = st.columns([3, 1.2, 0.8])
-            c.label = cols[0].text_input("선택 이름", value=c.label, key=f"label_{i}")
-            c.hours = cols[1].number_input("시간(시간)", 0.0, 24.0, float(c.hours), 0.5, key=f"hours_{i}")
-            if cols[2].button("삭제", key=f"del_{i}"):
-                s.choices.pop(i)
-                st.rerun()
+            c1, c2, c3 = st.columns([2.2, 1.2, 1.2])
+            c1.markdown(f"**{cat}**")
+            c2.caption(f"중요도: {int(s.weights.get(cat, 0))}/100")
 
-    with st.expander("선택지 추가", expanded=False):
-        new_label = st.text_input("새 선택지 이름", value="새 선택지", key="new_label")
-        new_hours = st.number_input("시간(시간)", 0.0, 24.0, 1.0, 0.5, key="new_hours")
-        if st.button("추가"):
-            s.choices.append(ChoiceBlock(new_label, float(new_hours)))
-            st.rerun()
+            hours = c3.number_input(
+                "시간(시간)",
+                min_value=0.0,
+                max_value=24.0,
+                value=float(default_h),
+                step=0.5,
+                key=f"cat_hours_{i}",
+            )
 
-    used = sum_choice_hours(s.choices)
+        used += float(hours)
+        new_choices.append(ChoiceBlock(cat, float(hours)))
+
+    # 저장(범주 고정)
+    s.choices = new_choices
+
     st.info(f"선택 가능한 시간(추정): {discretionary:.1f}시간 / 현재 배분 합계: {used:.1f}시간")
-
     if used > discretionary + 0.25:
         st.warning("배분 시간이 선택 가능한 시간을 초과했어. 괜찮아—대략치니까. 필요하면 조금만 줄여봐.")
     elif used < max(0.0, discretionary - 2.0):

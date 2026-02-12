@@ -15,7 +15,7 @@ def _sunk_cost_text() -> str:
 
 
 def render_support_page(s: AppState) -> None:
-    st.subheader("4) 의사결정 지원(비난 없음)")
+    st.subheader("의사결정 지원(비난 없음)")
     st.caption("선택을 ‘정답/오답’으로 판정하지 않고, 다음 질문을 던지는 형태로 돕는다.")
 
     st.markdown("#### 오늘의 선택을 더 편하게 만드는 질문(선택)")
