@@ -8,13 +8,14 @@ from .models import AppState, ChoiceBlock
 def _default_state() -> AppState:
     s = AppState()
     s.choices = [
-        ChoiceBlock("휴식/멍때리기(아무것도 안함)", 3.0),
-        ChoiceBlock("탐색/정보수집(진로, 관심사, 상담 등)", 1.0),
-        ChoiceBlock("학습/포트폴리오(작은 실행 포함)", 2.0),
-        ChoiceBlock("운동/회복(컨디션 관리)", 1.0),
+        ChoiceBlock("휴식/회복", 3.0),
+        ChoiceBlock("여가/취미", 1.0),
+        ChoiceBlock("자기계발/공부", 2.0),
+        ChoiceBlock("운동/건강", 1.0),
+        ChoiceBlock("미래준비(탐색/계획)", 1.0),
+        ChoiceBlock("관계/소통", 0.5),
     ]
     return s
-
 
 def get_state() -> AppState:
     if "app_state" not in st.session_state:
