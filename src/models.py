@@ -43,18 +43,16 @@ class AppState:
     basics: TimeBasics = field(default_factory=TimeBasics)
 
     # ✅ 활동 중요도(가중치): 0~100
+    # 논문에 따르면 유지 필수활동까지 총 5분류로 사람들의 활동을 범주화 할 수 있다고 한다.
+    # alpha 기본값 설정.
     weights: Dict[str, int] = field(
         default_factory=lambda: {
-            "휴식/회복": 70,
-            "여가/취미": 60,
-            "관계/소통": 55,
-            "자기계발/공부": 65,
-            "운동/건강": 65,
-            "미래준비(탐색/계획)": 60,
+            "생산활동": 80,
+            "인적자본 축적": 60,
+            "회복,건강,여가": 60,
+            "소비성 여가, 저생산 활동": 30,
         }
     )
 
     # choices는 리스트(가변)이므로 이것도 default_factory 추천
     choices: List[ChoiceBlock] = field(default_factory=list)
-    # basics: TimeBasics = TimeBasics()
-    # choices: Optional[List[ChoiceBlock]] = None

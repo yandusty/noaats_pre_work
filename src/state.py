@@ -8,12 +8,10 @@ from .models import AppState, ChoiceBlock
 def _default_state() -> AppState:
     s = AppState()
     s.choices = [
-        ChoiceBlock("휴식/회복", 3.0),
-        ChoiceBlock("여가/취미", 1.0),
-        ChoiceBlock("자기계발/공부", 2.0),
-        ChoiceBlock("운동/건강", 1.0),
-        ChoiceBlock("미래준비(탐색/계획)", 1.0),
-        ChoiceBlock("관계/소통", 0.5),
+        ChoiceBlock("생산활동", 4.0),
+        ChoiceBlock("인적자본 축적", 4.0),
+        ChoiceBlock("회복,건강,여가", 2.0),
+        ChoiceBlock("소비성 여가, 저생산 활동", 2.0)
     ]
     return s
 

@@ -94,11 +94,46 @@ def _get_choice_factor(
 def sum_choice_hours(choices: List[ChoiceBlock]) -> float:
     return float(sum(_clamp_nonneg(getattr(c, "hours", 0.0)) for c in choices))
 
+def weight_to_alpha(weight: int, mode: str = "ratio") -> float:
+    """
+    weight(0~100) -> alpha 변환
+    mode:
+      - "ratio": alpha = w/100 (0~1)
+      - "neutral_1": alpha = 0.5 + w/100 (0.5~1.5)  ✅ 추천
+    """
+    w = max(0, min(100, int(weight)))
+    if mode == "ratio":
+        return w / 100.0
+    # neutral_1
+    return 0.5 + (w / 100.0)
+
+def build_alpha_by_label_from_weights(
+    weights: Dict[str, int],
+    *,
+    mode: str = "neutral_1",
+    default_weight: int = 50,
+) -> Dict[str, float]:
+    """
+    온보딩 weights(0~100)를 label별 alpha로 변환.
+    - mode="neutral_1": 0.5~1.5 (추천: 과격하지 않음)
+    - label 누락 시 default_weight(중립 50)로 처리
+    """
+    alpha_by_label: Dict[str, float] = {}
+    for label, w in (weights or {}).items():
+        try:
+            wi = int(w)
+        except Exception:
+            wi = default_weight
+        alpha_by_label[str(label)] = float(weight_to_alpha(wi, mode=mode))
+    return alpha_by_label
+
 
 def calc_opportunity_cost_table(
     choices: List[ChoiceBlock],
     basis_hour_value: float,
     config: Optional[OCConfig] = None,
+    weights: Optional[Dict[str, int]] = None,
+    alpha_mode: str = "ratio",
 ) -> pd.DataFrame:
     """
     기회비용(가능성 가치) 환산표
@@ -112,9 +147,20 @@ def calc_opportunity_cost_table(
       OC = hours * V
 
     - 활동 자체에 대한 평가/판정은 하지 않는다.
-    - '돈을 잃는다'가 아니라, '다른 선택으로 전환될 수 있었던 가능성'을 숫자로 보여준다.
+    - '선택으로 전환될 수 있었던 가치'을 숫자로 보여준다.
     """
     cfg = config or OCConfig()
+
+    if weights is not None:
+        alpha_by_label = build_alpha_by_label_from_weights(weights, mode=alpha_mode)
+        cfg = OCConfig(
+            default_alpha=cfg.default_alpha,
+            default_p_conv=cfg.default_p_conv,
+            default_multiplier=cfg.default_multiplier,
+            alpha_by_label=alpha_by_label,
+            p_conv_by_label=cfg.p_conv_by_label,
+            multiplier_by_label=cfg.multiplier_by_label,
+        )
 
     v0 = _clamp_nonneg(basis_hour_value)
 
