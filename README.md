@@ -148,6 +148,7 @@ JSON 형식으로 확인할 수 있습니다.
 ## 🚀 실행 방법
 
 ```bash
+git clone https://github.com/yandusty/noaats_pre_work
 pip install -r requirements.txt
 streamlit run app.py
 ```
