@@ -3,14 +3,17 @@ import streamlit as st
 from src.state import get_state
 from src.calc import calc_discretionary_hours
 from src.ui.sidebar import render_sidebar
-from src.ui.onboarding_page import render_onboarding_page  # ✅ 추가
+from src.ui.onboarding_page import render_onboarding_page
 from src.ui.input_page import render_input_page
 from src.ui.results_page import render_results_page
-from src.ui.support_page import render_support_page
+from src.ui.support_page import render_decision_support_page
 from src.ui.export_page import render_export_page
 
 
 def main():
+    # ✅ 항상 제일 먼저!
+    st.set_page_config(page_title="시간=돈(기회비용)", layout="wide")
+
     # ✅ 메인 화면 시작 앵커
     st.markdown('<div id="main_top"></div>', unsafe_allow_html=True)
 
@@ -26,8 +29,6 @@ def main():
             height=0,
         )
         st.session_state["scroll_to"] = None
-    
-    st.set_page_config(page_title="시간=돈(기회비용)", layout="wide")
 
     s = get_state()
     render_sidebar(s)
@@ -45,14 +46,27 @@ def main():
 
     discretionary, fixed = calc_discretionary_hours(s.basics)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["입력", "선택 활동 가치 환산 결과", "의사 결정 지원", "내보내기(틀)"])
-    with tab1:
+    # ✅ tabs 대신: session_state에 고정되는 탭 선택기
+    menu = st.radio(
+        "메뉴",
+        ["입력", "선택 활동 가치 환산 결과", "의사 결정 지원", "내보내기(틀)"],
+        horizontal=True,
+        key="main_menu",  # ✅ 고유 key
+        label_visibility="collapsed",
+    )
+
+    st.divider()
+
+    if menu == "입력":
         render_input_page(s, discretionary)
-    with tab2:
+
+    elif menu == "선택 활동 가치 환산 결과":
         render_results_page(s, discretionary, fixed)
-    with tab3:
-        render_support_page(s)
-    with tab4:
+
+    elif menu == "의사 결정 지원":
+        render_decision_support_page(s, discretionary, fixed)
+
+    elif menu == "내보내기(틀)":
         render_export_page(s)
 
 
